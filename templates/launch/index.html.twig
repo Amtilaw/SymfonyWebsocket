@@ -1,0 +1,66 @@
+{# templates/app/index.html.twig#}
+{% extends 'base.html.twig' %}
+{% block body %}
+	<h1>Socket Demo</h1>
+	<div class="row">
+		<div class="col border">
+			<h2>Send Message</h2>
+			<div class="row">
+				<div class="col">
+					<div class="sent-messages"></div>
+				</div>
+			</div>
+			<div class="message-form row">
+				<div class="col-2">
+					<label class="control-label">
+						Message
+					</label>
+				</div>
+				<div class="col-8">
+					<input class="form-control" type="text" name="message">
+				</div>
+				<div class="col-2">
+					<button type="button" class="btn-send-message btn btn-primary">Send</button>
+				</div>
+			</div>
+		</div>
+		<div class="col border">
+			<h2>Received Message</h2>
+			<div class="row">
+				<div class="col">
+					<div class="received-messages"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascripts %}
+	<script>
+		/*
+        * connect to socket
+        * */
+ws = new WebSocket('ws://localhost:8080');
+ws.onopen = function () {
+$('.sent-messages').append(`<div class="alert alert-success">Connected With Socket, You can send messages now!</div>`);
+}
+ws.onclose = function () {
+$('.sent-messages').append(`<div class="alert alert-danger">Connection Closed! Bye!</div>`);
+}
+ws.onerror = function () {
+$('.sent-messages').append(`<div class="alert alert-danger">Opps! Error in Connection!</div>`);
+}
+ws.onmessage = function (message) {
+$('.received-messages').append (`<div class="alert alert-primary">${
+message.data
+}</div>`);
+}
+$('.btn-send-message').bind('click', function () {
+let message = $('input[name=message]');
+ws.send(message.val());
+$('.sent-messages').append (`<div class="alert alert-info">${
+message.val()
+}</div>`);
+message.val('');
+});
+	</script>
+{% endblock %}
